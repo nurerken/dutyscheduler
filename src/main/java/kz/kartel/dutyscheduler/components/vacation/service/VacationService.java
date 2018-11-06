@@ -21,4 +21,8 @@ public class VacationService {
     public List<UserVacation> getAllUserVacations(){
         return vacationRepository.getUserVacations();
     }
+
+    public List<UserVacation> getUsersVacations(String param1){
+        return vacationRepository.getUserVacationsByDate(param1);
+    }
 }

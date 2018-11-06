@@ -1,12 +1,17 @@
 package kz.kartel.dutyscheduler.components.vacation.model;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 @Entity
 @Table(name="user_vacations")
+@NamedStoredProcedureQueries({
+        @NamedStoredProcedureQuery(name = "user_vacation_by_date_function",
+                procedureName = "user_vacation_by_date",
+                resultClasses = {UserVacation.class},
+                parameters = {
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "inParam1", type = String.class)
+                })
+})
 public class UserVacation {
     private Long userId;
     private String firstName;
