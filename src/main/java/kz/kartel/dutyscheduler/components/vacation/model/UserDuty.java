@@ -3,16 +3,16 @@ package kz.kartel.dutyscheduler.components.vacation.model;
 import javax.persistence.*;
 
 @Entity
-@Table(name="user_vacations")
+@Table(name="user_duties")
 @NamedStoredProcedureQueries({
-        @NamedStoredProcedureQuery(name = "user_vacation_by_date_function",
-                procedureName = "user_vacation_by_date",
-                resultClasses = {UserVacation.class},
+        @NamedStoredProcedureQuery(name = "user_duty_by_date_function",
+                procedureName = "user_duty_by_date",
+                resultClasses = {UserDuty.class},
                 parameters = {
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "inParam1", type = String.class)
                 })
 })
-public class UserVacation {
+public class UserDuty {
     private Long userId;
     private String firstName;
     private String lastName;
