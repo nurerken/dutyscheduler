@@ -14,7 +14,7 @@ public class VacationService {
     @Autowired
     private VacationRepository vacationRepository;
 
-    public boolean isUserOnVacation(Integer userId, Date date){
+    public boolean isUserOnVacation(Long userId, Date date){
         return vacationRepository.getOnVacationUserId(userId, date) != null;
     }
 }

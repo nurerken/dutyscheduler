@@ -1,7 +1,9 @@
 package kz.kartel.dutyscheduler.components.duty.service;
 
+import kz.kartel.dutyscheduler.components.duty.forms.CreateDutyForm;
 import kz.kartel.dutyscheduler.components.duty.model.Duty;
 import kz.kartel.dutyscheduler.components.duty.repository.DutyRepository;
+import kz.kartel.dutyscheduler.components.user.repository.UserRepository;
 import kz.kartel.dutyscheduler.components.vacation.model.UserDuty;
 import kz.kartel.dutyscheduler.components.vacation.repository.VacationRepository;
 import kz.kartel.dutyscheduler.components.vacation.service.VacationService;
@@ -18,7 +20,7 @@ public class DutyService {
     private DutyRepository dutyRepository;
 
     @Autowired
-    private VacationRepository vacationRepository;
+    private UserRepository userRepository;
 
     @Autowired
     private VacationService vacationService;
@@ -31,11 +33,11 @@ public class DutyService {
         return dutyRepository.getUserDutiesByDate(param1);
     }
 
-    public boolean isUserOnDuty(Integer userId, Date date){
+    public boolean isUserOnDuty(Long userId, Date date){
         return dutyRepository.getDutyUserId(userId, date) != null;
     }
 
-    public void saveDuty(){
-
+    public void saveDuty(CreateDutyForm dutyForm){
+        dutyRepository.saveDuty(dutyForm.getUserId(), dutyForm.getDate(), dutyForm.getDutyType());
     }
 }

@@ -13,7 +13,8 @@ public class Vacation {
     private Date date;
 
     @Id
-    @GeneratedValue
+    @GeneratedValue()
+    @Column(name="vacation_id")
     public Long getId() {
         return id;
     }

@@ -1,5 +1,6 @@
 package kz.kartel.dutyscheduler.controllers;
 
+import kz.kartel.dutyscheduler.components.duty.forms.CreateDutyForm;
 import kz.kartel.dutyscheduler.components.duty.model.Duty;
 import kz.kartel.dutyscheduler.components.duty.service.DutyService;
 import kz.kartel.dutyscheduler.components.user.service.UserService;
@@ -48,21 +49,19 @@ public class DutyScheduleController {
     }
 
     @RequestMapping(value = "/duty", method = RequestMethod.POST)
-    public ResponseEntity<?> createDuty(@RequestBody Duty duty) {
-        Integer userId = null;
-        Date date = null;
+    public ResponseEntity<?> createDuty(@RequestBody CreateDutyForm createDutyForm) {
 
-        if(userService.getAllUsers()){
-            return new ResponseEntity(new String("Error. A User with id " + userId + " doesn't exist."), HttpStatus.CONFLICT);
+        if(userService.getUserById(createDutyForm.getUserId()) == null){
+            return new ResponseEntity(new String("Error. A User with id " + createDutyForm.getUserId() + " doesn't exist."), HttpStatus.CONFLICT);
         }
-        else if (dutyService.isUserOnDuty(userId, date)) {
-            return new ResponseEntity(new String("Unable to create. A User with name " + user.getName() + " already exist."), HttpStatus.CONFLICT);
+        else if (dutyService.isUserOnDuty(createDutyForm.getUserId(), createDutyForm.getDate())) {
+            return new ResponseEntity(new String("Error. A User with id " + createDutyForm.getUserId() + " is already on duty given day."), HttpStatus.CONFLICT);
         }
-        else if(vacationService.isUserOnVacation(userId, date)){
-            return new ResponseEntity(new String("Unable to create. A User with name " + user.getName() + " already exist."), HttpStatus.CONFLICT);
+        else if(vacationService.isUserOnVacation(createDutyForm.getUserId(), createDutyForm.getDate())){
+            return new ResponseEntity(new String("Error. A User with id " + createDutyForm.getUserId() + " is on vacation given day."), HttpStatus.CONFLICT);
         }
 
-        dutyService.saveD(user);
-        return new ResponseEntity<String>(headers, HttpStatus.CREATED);
+        dutyService.saveDuty(createDutyForm);
+        return new ResponseEntity<String>("ok", HttpStatus.CREATED);
     }
 }

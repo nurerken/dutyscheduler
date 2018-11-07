@@ -14,6 +14,6 @@ import java.util.List;
 @Repository
 public interface VacationRepository extends JpaRepository<Vacation, Long>, JpaSpecificationExecutor<Vacation> {
 
-    @Query("select v.id from Vacation v where v.id = :userId and ud.date = :date")
-    public Integer getOnVacationUserId(@Param("userId") Integer userId, @Param("date") Date date);
+    @Query("select v.id from Vacation v where v.user.id = :userId and v.date = :date")
+    public Integer getOnVacationUserId(@Param("userId") Long userId, @Param("date") Date date);
 }
