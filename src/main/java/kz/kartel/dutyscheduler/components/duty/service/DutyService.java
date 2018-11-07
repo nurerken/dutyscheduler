@@ -3,6 +3,7 @@ package kz.kartel.dutyscheduler.components.duty.service;
 import kz.kartel.dutyscheduler.components.duty.model.Duty;
 import kz.kartel.dutyscheduler.components.duty.repository.DutyRepository;
 import kz.kartel.dutyscheduler.components.vacation.model.UserDuty;
+import kz.kartel.dutyscheduler.components.vacation.repository.VacationRepository;
 import kz.kartel.dutyscheduler.components.vacation.service.VacationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,6 +18,9 @@ public class DutyService {
     private DutyRepository dutyRepository;
 
     @Autowired
+    private VacationRepository vacationRepository;
+
+    @Autowired
     private VacationService vacationService;
 
     public List<UserDuty> getUsersDutiesAll(){
@@ -27,8 +31,8 @@ public class DutyService {
         return dutyRepository.getUserDutiesByDate(param1);
     }
 
-    public boolean isDutyFree(Integer userId, Date date){
-        return true;
+    public boolean isUserOnDuty(Integer userId, Date date){
+        return dutyRepository.getDutyUserId(userId, date) != null;
     }
 
     public void saveDuty(){

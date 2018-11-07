@@ -5,6 +5,7 @@ import kz.kartel.dutyscheduler.components.vacation.repository.VacationRepository
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -13,4 +14,7 @@ public class VacationService {
     @Autowired
     private VacationRepository vacationRepository;
 
+    public boolean isUserOnVacation(Integer userId, Date date){
+        return vacationRepository.getOnVacationUserId(userId, date) != null;
+    }
 }

@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.util.Date;
 import java.util.List;
 
 @Controller
@@ -46,14 +47,22 @@ public class DutyScheduleController {
         return new ResponseEntity(usersDutiesAll, HttpStatus.OK);
     }
 
-    /*@RequestMapping(value = "/duty", method = RequestMethod.POST)
-    public ResponseEntity<?> createUser(@RequestBody Duty duty, UriComponentsBuilder ucBuilder) {
+    @RequestMapping(value = "/duty", method = RequestMethod.POST)
+    public ResponseEntity<?> createDuty(@RequestBody Duty duty) {
+        Integer userId = null;
+        Date date = null;
 
-        if (dutyService.isDutyFree(duty)) {
+        if(userService.getAllUsers()){
+            return new ResponseEntity(new String("Error. A User with id " + userId + " doesn't exist."), HttpStatus.CONFLICT);
+        }
+        else if (dutyService.isUserOnDuty(userId, date)) {
+            return new ResponseEntity(new String("Unable to create. A User with name " + user.getName() + " already exist."), HttpStatus.CONFLICT);
+        }
+        else if(vacationService.isUserOnVacation(userId, date)){
             return new ResponseEntity(new String("Unable to create. A User with name " + user.getName() + " already exist."), HttpStatus.CONFLICT);
         }
 
         dutyService.saveD(user);
         return new ResponseEntity<String>(headers, HttpStatus.CREATED);
-    }*/
+    }
 }
