@@ -13,8 +13,10 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
@@ -30,6 +32,7 @@ public class DutyScheduleController {
     @Autowired
     private DutyService dutyService;
 
+
     @RequestMapping(value = "/users", method = RequestMethod.GET)
     public ResponseEntity users() {
         List users = userService.getAllUsers();
@@ -42,11 +45,20 @@ public class DutyScheduleController {
         return new ResponseEntity(usersDutiesAll, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/duties2", method = RequestMethod.GET)
-    public ResponseEntity duties2() {
-        List usersDutiesAll = dutyService.getUsersDutiesByDate("date1");
-        return new ResponseEntity(usersDutiesAll, HttpStatus.OK);
+    @RequestMapping(value = "/dutiesByDate", method = RequestMethod.GET)
+    public ResponseEntity duties2(@RequestParam("date1") String date1Str, @RequestParam("date2") String date2Str) {
+
+        Date date1 = null, date2 = null;
+        try{
+            date1=new SimpleDateFormat("MM-dd-yyy").parse(date1Str);
+            date2 =new SimpleDateFormat("MM-dd-yyy").parse(date2Str);
+        }catch (Exception ex){
+        }
+
+        List usesDuties = dutyService.getUsersDutiesByDate2(date1, date2);
+        return new ResponseEntity(usesDuties, HttpStatus.OK);
     }
+
 
     @RequestMapping(value = "/duty", method = RequestMethod.POST)
     public ResponseEntity<?> createDuty(@RequestBody CreateDutyForm createDutyForm) {

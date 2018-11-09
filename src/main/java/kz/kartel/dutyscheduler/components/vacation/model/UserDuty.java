@@ -4,14 +4,6 @@ import javax.persistence.*;
 
 @Entity
 @Table(name="user_duties")
-@NamedStoredProcedureQueries({
-        @NamedStoredProcedureQuery(name = "user_duty_by_date_function",
-                procedureName = "user_duty_by_date",
-                resultClasses = {UserDuty.class},
-                parameters = {
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "inParam1", type = String.class)
-                })
-})
 public class UserDuty {
     private Long userId;
     private String firstName;
