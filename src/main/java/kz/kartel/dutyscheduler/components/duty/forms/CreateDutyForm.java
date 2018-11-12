@@ -4,9 +4,17 @@ import java.util.Date;
 
 public class CreateDutyForm {
 
+    private Long dutyId;
     private Long userId;
     private Date date;
     private Integer dutyType;
+
+    public Long getDutyId() {
+        return dutyId;
+    }
+    public void setDutyId(Long dutyId) {
+        this.dutyId = dutyId;
+    }
 
     public Long getUserId() {
         return userId;

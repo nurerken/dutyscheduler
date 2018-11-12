@@ -26,11 +26,15 @@ public class DutyService {
     @Autowired
     private VacationService vacationService;
 
+    public Duty getById(Long id){
+        return dutyRepository.getDutyById(id);
+    }
+
     public List<UserDuty> getUsersDutiesAll(){
         return dutyRepository.getUserDuties();
     }
 
-    public List<UserDuty> getUsersDutiesByDate2(Date date1, Date date2){
+    public List<UserDuty> getUsersDutiesByDate(Date date1, Date date2){
         List<Object[]> objects = dutyRepository.getUserDutiesByDate(date1, date2);
 
         List<UserDuty> duties = new ArrayList<>();
@@ -52,5 +56,13 @@ public class DutyService {
 
     public void saveDuty(CreateDutyForm dutyForm){
         dutyRepository.saveDuty(dutyForm.getUserId(), dutyForm.getDate(), dutyForm.getDutyType());
+    }
+
+    public void updateDuty(CreateDutyForm createDutyForm){
+        dutyRepository.updateDuty(createDutyForm.getUserId(), createDutyForm.getDate(), createDutyForm.getDutyType(), createDutyForm.getDutyId());
+    }
+
+    public void deleteDuty(Long dutyId){
+        dutyRepository.deleteDuty(dutyId);
     }
 }
