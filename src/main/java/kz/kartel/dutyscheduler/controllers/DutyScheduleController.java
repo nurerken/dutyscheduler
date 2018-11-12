@@ -43,7 +43,7 @@ public class DutyScheduleController {
     }
 
     @RequestMapping(value = "/dutiesByDate", method = RequestMethod.GET)
-    public ResponseEntity duties2(@RequestParam("date1") String date1Str, @RequestParam("date2") String date2Str) {
+    public ResponseEntity dutiesByDate(@RequestParam("date1") String date1Str, @RequestParam("date2") String date2Str) {
 
         Date date1 = null, date2 = null;
         try{
