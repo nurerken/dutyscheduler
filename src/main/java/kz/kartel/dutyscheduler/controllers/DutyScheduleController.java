@@ -1,17 +1,16 @@
 package kz.kartel.dutyscheduler.controllers;
 
+import kz.kartel.dutyscheduler.components.calendar.service.CalendarService;
 import kz.kartel.dutyscheduler.components.duty.forms.CreateDutyForm;
-import kz.kartel.dutyscheduler.components.duty.model.Duty;
+import kz.kartel.dutyscheduler.components.duty.forms.DutiesResponse;
 import kz.kartel.dutyscheduler.components.duty.service.DutyService;
 import kz.kartel.dutyscheduler.components.user.service.UserService;
-import kz.kartel.dutyscheduler.components.vacation.model.Vacation;
 import kz.kartel.dutyscheduler.components.vacation.service.VacationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.util.UriComponentsBuilder;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -29,6 +28,8 @@ public class DutyScheduleController {
     @Autowired
     private DutyService dutyService;
 
+    @Autowired
+    private CalendarService calendarService;
 
     @RequestMapping(value = "/users", method = RequestMethod.GET)
     public ResponseEntity users() {
@@ -43,7 +44,7 @@ public class DutyScheduleController {
     }
 
     @RequestMapping(value = "/dutiesByDate", method = RequestMethod.GET)
-    public ResponseEntity dutiesByDate(@RequestParam("date1") String date1Str, @RequestParam("date2") String date2Str) {
+    public ResponseEntity dutiesByDate(@RequestParam("date1") String date1Str, @RequestParam("date2") String date2Str, @RequestParam(name = "calId") Long calId) {
 
         Date date1 = null, date2 = null;
         try{
@@ -52,7 +53,12 @@ public class DutyScheduleController {
         }catch (Exception ex){
         }
 
-        List usesDuties = dutyService.getUsersDutiesByDate(date1, date2);
+        List usesDuties = dutyService.getUsersDutiesByDate(date1, date2, calId);
+        DutiesResponse dutiesResponse = new DutiesResponse();
+        dutiesResponse.setCalendarId(calId);
+        dutiesResponse.setCalendarName(calendarService.getCalendarById(calId).getName());
+        dutiesResponse.setUserDuties(usesDuties);
+
         return new ResponseEntity(usesDuties, HttpStatus.OK);
     }
 
@@ -61,10 +67,10 @@ public class DutyScheduleController {
     public ResponseEntity<?> createDuty(@RequestBody CreateDutyForm createDutyForm) {
 
         if(userService.getUserById(createDutyForm.getUserId()) == null){
-            return new ResponseEntity(new String("Error. A User with id " + createDutyForm.getUserId() + " doesn't exist."), HttpStatus.NOT_FOUND);
+            return new ResponseEntity(new String("Error. A User with id " + createDutyForm.getUserId() + " doesn't exist."), HttpStatus.NOT_ACCEPTABLE);
         }
-        else if (dutyService.isUserOnDuty(createDutyForm.getUserId(), createDutyForm.getDate())) {
-            return new ResponseEntity(new String("Error. A User with id " + createDutyForm.getUserId() + " is already on duty given day."), HttpStatus.CONFLICT);
+        else if (dutyService.isUserOnDuty(createDutyForm.getUserId(), createDutyForm.getDate(), createDutyForm.getCalId())) {
+            return new ResponseEntity(new String("Error. A User with id " + createDutyForm.getUserId() + " is already on duty given day with calendar id:" + createDutyForm.getCalId()), HttpStatus.CONFLICT);
         }
         else if(vacationService.isUserOnVacation(createDutyForm.getUserId(), createDutyForm.getDate())){
             return new ResponseEntity(new String("Error. A User with id " + createDutyForm.getUserId() + " is on vacation given day."), HttpStatus.CONFLICT);

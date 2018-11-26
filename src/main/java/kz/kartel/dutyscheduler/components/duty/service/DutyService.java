@@ -34,8 +34,8 @@ public class DutyService {
         return dutyRepository.getUserDuties();
     }
 
-    public List<UserDuty> getUsersDutiesByDate(Date date1, Date date2){
-        List<Object[]> objects = dutyRepository.getUserDutiesByDate(date1, date2);
+    public List<UserDuty> getUsersDutiesByDate(Date date1, Date date2, Long calId){
+        List<Object[]> objects = dutyRepository.getUserDutiesByDate(date1, date2, calId);
 
         List<UserDuty> duties = new ArrayList<>();
         for(Object[] object : objects){
@@ -50,16 +50,16 @@ public class DutyService {
         return duties;
     }
 
-    public boolean isUserOnDuty(Long userId, Date date){
-        return dutyRepository.getDutyUserId(userId, date) != null;
+    public boolean isUserOnDuty(Long userId, Date date, Long calId){
+        return dutyRepository.getOnDutyUserId(userId, date, calId) != null;
     }
 
     public void saveDuty(CreateDutyForm dutyForm){
-        dutyRepository.saveDuty(dutyForm.getUserId(), dutyForm.getDate(), dutyForm.getDutyType());
+        dutyRepository.saveDuty(dutyForm.getUserId(), dutyForm.getDate(), dutyForm.getDutyType(), dutyForm.getCalId());
     }
 
     public void updateDuty(CreateDutyForm createDutyForm){
-        dutyRepository.updateDuty(createDutyForm.getUserId(), createDutyForm.getDate(), createDutyForm.getDutyType(), createDutyForm.getDutyId());
+        dutyRepository.updateDuty(createDutyForm.getUserId(), createDutyForm.getDate(), createDutyForm.getDutyType(), createDutyForm.getCalId(), createDutyForm.getDutyId());
     }
 
     public void deleteDuty(Long dutyId){

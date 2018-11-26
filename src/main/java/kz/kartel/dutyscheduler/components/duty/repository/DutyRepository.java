@@ -6,7 +6,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.jpa.repository.query.Procedure;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
@@ -24,21 +23,21 @@ public interface DutyRepository extends JpaRepository<Duty, Long>, JpaSpecificat
     @Query("select d from Duty d where d.id = :id")
     public Duty getDutyById(@Param("id") Long id);
 
-    @Query("select ud.id from Duty ud where ud.user.id= :userId and ud.date = :date")
-    public Integer getDutyUserId(@Param("userId") Long userId, @Param("date") Date date);
+    @Query("select ud.id from Duty ud where ud.user.id= :userId and ud.date = :date and ud.calendar.id = :calId")
+    public Integer getOnDutyUserId(@Param("userId") Long userId, @Param("date") Date date, @Param("calId") Long calId);
 
     @Query(value = "select * from user_duty_by_date(:date1, :date2)", nativeQuery = true)
-    public List<Object[]> getUserDutiesByDate(@Param("date1") Date date1, @Param("date2") Date date2);
+    public List<Object[]> getUserDutiesByDate(@Param("date1") Date date1, @Param("date2") Date date2, @Param("calId") Long calId);
 
     @Modifying
     @Transactional
-    @Query(value="insert into duties (user_id, duty_date, duty_type) values (:user_id, :duty_date, :duty_type)", nativeQuery = true)
-    public void saveDuty(@Param("user_id") Long userId, @Param("duty_date") Date duty_date, @Param("duty_type") Integer duty_type);
+    @Query(value="insert into duties (user_id, duty_date, duty_type, cal_id) values (:user_id, :duty_date, :duty_type, :cal_id)", nativeQuery = true)
+    public void saveDuty(@Param("user_id") Long userId, @Param("duty_date") Date duty_date, @Param("duty_type") Integer duty_type, @Param("cal_id") Long cal_id);
 
     @Modifying
     @Transactional
-    @Query(value="update Duty set user.id = :userId, date = :date, dutyType = :dutyType where id = :id")
-    public void updateDuty(@Param("userId") Long userId, @Param("date") Date date, @Param("dutyType") Integer dutyType, @Param("id") Long id);
+    @Query(value="update Duty set user.id = :userId, date = :date, dutyType = :dutyType, calendar.id = :calId where id = :id")
+    public void updateDuty(@Param("userId") Long userId, @Param("date") Date date, @Param("dutyType") Integer dutyType, @Param("calId") Long calId, @Param("id") Long id);
 
     @Modifying
     @Transactional

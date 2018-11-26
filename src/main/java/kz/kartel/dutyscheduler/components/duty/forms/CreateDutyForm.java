@@ -8,6 +8,7 @@ public class CreateDutyForm {
     private Long userId;
     private Date date;
     private Integer dutyType;
+    private Long calId;
 
     public Long getDutyId() {
         return dutyId;
@@ -35,5 +36,12 @@ public class CreateDutyForm {
     }
     public void setDutyType(Integer dutyType) {
         this.dutyType = dutyType;
+    }
+
+    public Long getCalId() {
+        return calId;
+    }
+    public void setCalId(Long calId) {
+        this.calId = calId;
     }
 }

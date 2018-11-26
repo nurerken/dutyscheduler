@@ -1,5 +1,6 @@
 package kz.kartel.dutyscheduler.components.duty.model;
 
+import kz.kartel.dutyscheduler.components.calendar.model.Calendar;
 import kz.kartel.dutyscheduler.components.user.model.User;
 
 import javax.persistence.*;
@@ -12,6 +13,7 @@ public class Duty {
     private User user;
     private Date date;
     private Integer dutyType;
+    private Calendar calendar;
 
     @Id
     @GeneratedValue
@@ -46,5 +48,14 @@ public class Duty {
     }
     public void setDutyType(Integer dutyType) {
         this.dutyType = dutyType;
+    }
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name="cal_id")
+    public Calendar getCalendar() {
+        return calendar;
+    }
+    public void setCalendar(Calendar calendar) {
+        this.calendar = calendar;
     }
 }
