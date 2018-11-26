@@ -59,7 +59,7 @@ public class DutyScheduleController {
         dutiesResponse.setCalendarName(calendarService.getCalendarById(calId).getName());
         dutiesResponse.setUserDuties(usesDuties);
 
-        return new ResponseEntity(usesDuties, HttpStatus.OK);
+        return new ResponseEntity(dutiesResponse, HttpStatus.OK);
     }
 
 
