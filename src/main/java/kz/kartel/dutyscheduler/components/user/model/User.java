@@ -13,6 +13,7 @@ public class User {
     private String email;
     private String firstName;
     private String lastName;
+    private String password;
 
     @Id
     @GeneratedValue
@@ -45,5 +46,13 @@ public class User {
     }
     public void setLastName(String lastName) {
         this.lastName = lastName;
+    }
+
+    //@Column(name="password")
+    public String getPassword() {
+        return password;
+    }
+    public void setPassword(String password) {
+        this.password = password;
     }
 }

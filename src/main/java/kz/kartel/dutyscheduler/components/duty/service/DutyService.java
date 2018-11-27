@@ -51,7 +51,7 @@ public class DutyService {
     }
 
     public boolean isUserOnDuty(Long userId, Date date, Long calId){
-        return dutyRepository.getOnDutyUserId(userId, date, calId) != null;
+        return dutyRepository.getOnDutyUserId(userId, date, calId.intValue()) != null;
     }
 
     public void saveDuty(CreateDutyForm dutyForm){

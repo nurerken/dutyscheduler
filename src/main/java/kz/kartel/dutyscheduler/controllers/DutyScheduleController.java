@@ -4,11 +4,13 @@ import kz.kartel.dutyscheduler.components.calendar.service.CalendarService;
 import kz.kartel.dutyscheduler.components.duty.forms.CreateDutyForm;
 import kz.kartel.dutyscheduler.components.duty.forms.DutiesResponse;
 import kz.kartel.dutyscheduler.components.duty.service.DutyService;
+import kz.kartel.dutyscheduler.components.user.model.User;
 import kz.kartel.dutyscheduler.components.user.service.UserService;
 import kz.kartel.dutyscheduler.components.vacation.service.VacationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -31,16 +33,18 @@ public class DutyScheduleController {
     @Autowired
     private CalendarService calendarService;
 
-    @RequestMapping(value = "/users", method = RequestMethod.GET)
-    public ResponseEntity users() {
-        List users = userService.getAllUsers();
-        return new ResponseEntity(users, HttpStatus.OK);
-    }
+    @Autowired
+    private BCryptPasswordEncoder bCryptPasswordEncoder;
 
-    @RequestMapping(value = "/duties", method = RequestMethod.GET)
-    public ResponseEntity duties() {
-        List usersDutiesAll = dutyService.getUsersDutiesAll();
-        return new ResponseEntity(usersDutiesAll, HttpStatus.OK);
+    @RequestMapping(value = "/users/sign-up", method = RequestMethod.POST)
+    public ResponseEntity users(User user) {
+        if(userService.getUserByEmail(user.getEmail()) != null){
+            return new ResponseEntity("User with email: " + user.getEmail() + " already registered.", HttpStatus.CONFLICT);
+        }
+
+        user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
+        userService.saveUser(user);
+        return new ResponseEntity(user.getId(), HttpStatus.CREATED);
     }
 
     @RequestMapping(value = "/dutiesByDate", method = RequestMethod.GET)
