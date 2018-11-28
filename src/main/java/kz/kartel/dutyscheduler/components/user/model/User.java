@@ -16,7 +16,8 @@ public class User {
     private String password;
 
     @Id
-    @GeneratedValue
+    @SequenceGenerator(name="user_id_generator", sequenceName = "users_sequence", allocationSize=1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "user_id_generator")
     @Column(name="user_id")
     public Long getId() {
         return id;

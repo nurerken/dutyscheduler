@@ -37,14 +37,14 @@ public class DutyScheduleController {
     private BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @RequestMapping(value = "/users/sign-up", method = RequestMethod.POST)
-    public ResponseEntity users(User user) {
+    public ResponseEntity users(@RequestBody User user) {
         if(userService.getUserByEmail(user.getEmail()) != null){
             return new ResponseEntity("User with email: " + user.getEmail() + " already registered.", HttpStatus.CONFLICT);
         }
 
         user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
         userService.saveUser(user);
-        return new ResponseEntity(user.getId(), HttpStatus.CREATED);
+        return new ResponseEntity("userId: " + user.getId(), HttpStatus.CREATED);
     }
 
     @RequestMapping(value = "/dutiesByDate", method = RequestMethod.GET)

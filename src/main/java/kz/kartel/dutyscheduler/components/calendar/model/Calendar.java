@@ -4,7 +4,7 @@ package kz.kartel.dutyscheduler.components.calendar.model;
 import javax.persistence.*;
 
 @Entity
-@Table(name="duties")
+@Table(name="calendar")
 public class Calendar {
     private Long id;
     private String name;

@@ -35,7 +35,7 @@ public class DutyService {
     }
 
     public List<UserDuty> getUsersDutiesByDate(Date date1, Date date2, Long calId){
-        List<Object[]> objects = dutyRepository.getUserDutiesByDate(date1, date2, calId);
+        List<Object[]> objects = dutyRepository.getUserDutiesByDate(date1, date2, calId.intValue());
 
         List<UserDuty> duties = new ArrayList<>();
         for(Object[] object : objects){
