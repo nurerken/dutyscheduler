@@ -3,6 +3,7 @@ package kz.kartel.dutyscheduler.components.user.service;
 import kz.kartel.dutyscheduler.components.user.model.User;
 import kz.kartel.dutyscheduler.components.user.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

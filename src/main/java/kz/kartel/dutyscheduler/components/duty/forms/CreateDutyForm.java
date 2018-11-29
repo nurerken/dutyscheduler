@@ -1,13 +1,18 @@
 package kz.kartel.dutyscheduler.components.duty.forms;
 
+import javax.validation.constraints.NotNull;
 import java.util.Date;
 
 public class CreateDutyForm {
 
     private Long dutyId;
+    @NotNull(message = "UserId is null")
     private Long userId;
+    @NotNull(message = "Date is null")
     private Date date;
+    @NotNull(message = "DutyType is null")
     private Integer dutyType;
+    @NotNull(message = "CalId is null")
     private Long calId;
 
     public Long getDutyId() {
