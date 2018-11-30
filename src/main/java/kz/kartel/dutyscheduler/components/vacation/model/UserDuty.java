@@ -9,7 +9,6 @@ public class UserDuty {
     private String firstName;
     private String lastName;
     private String duties;
-    private String vacations;
 
     @Id
     @Column(name="user_id")
@@ -42,13 +41,5 @@ public class UserDuty {
     }
     public void setDuties(String duties) {
         this.duties = duties;
-    }
-
-    @Column(name="vacation")
-    public String getVacations() {
-        return vacations;
-    }
-    public void setVacations(String vacations) {
-        this.vacations = vacations;
     }
 }

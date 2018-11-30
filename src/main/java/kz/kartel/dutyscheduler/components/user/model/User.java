@@ -3,6 +3,7 @@ package kz.kartel.dutyscheduler.components.user.model;
 import javax.persistence.*;
 import javax.persistence.Entity;
 import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 
@@ -10,9 +11,13 @@ import java.util.List;
 @Table(name="users")
 public class User {
     private Long id;
+    @NotNull(message = "email is null")
     private String email;
+    @NotNull(message = "firstname is null")
     private String firstName;
+    @NotNull(message = "lastname is null")
     private String lastName;
+    @NotNull(message = "password is null")
     private String password;
 
     @Id

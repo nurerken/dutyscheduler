@@ -23,8 +23,8 @@ public interface DutyRepository extends JpaRepository<Duty, Long>, JpaSpecificat
     @Query("select d from Duty d where d.id = :id")
     public Duty getDutyById(@Param("id") Long id);
 
-    @Query("select ud.id from Duty ud where ud.user.id= :userId and ud.date = :date and ud.calendar.id = :calId")
-    public Integer getOnDutyUserId(@Param("userId") Long userId, @Param("date") Date date, @Param("calId") Integer calId);
+    @Query("select ud from Duty ud where ud.user.id= :userId and ud.date = :date and ud.calendar.id = :calId")
+    public Duty getOnDutyUserId(@Param("userId") Long userId, @Param("date") Date date, @Param("calId") Long calId);
 
     @Query(value = "select * from user_duty_by_date(:date1, :date2, :calId)", nativeQuery = true)
     public List<Object[]> getUserDutiesByDate(@Param("date1") Date date1, @Param("date2") Date date2, @Param("calId") Integer calId);

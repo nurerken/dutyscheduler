@@ -44,14 +44,19 @@ public class DutyService {
             userDuty.setFirstName((String)object[1]);
             userDuty.setLastName((String)object[2]);
             userDuty.setDuties((String)object[3]);
-            userDuty.setVacations((String)object[4]);
             duties.add(userDuty);
         }
         return duties;
     }
 
     public boolean isUserOnDuty(Long userId, Date date, Long calId){
-        return dutyRepository.getOnDutyUserId(userId, date, calId.intValue()) != null;
+        Duty duty = dutyRepository.getOnDutyUserId(userId, date, calId);
+        return duty != null && !duty.getDutyType().equals(0);
+    }
+
+    public boolean isUserOnVacation(Long userId, Date date, Long calId){
+        Duty duty = dutyRepository.getOnDutyUserId(userId, date, calId);
+        return duty != null && duty.getDutyType().equals(0);
     }
 
     public void saveDuty(CreateDutyForm dutyForm){

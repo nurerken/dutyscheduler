@@ -1,9 +1,13 @@
 package kz.kartel.dutyscheduler.controllers;
 
 import kz.kartel.dutyscheduler.components.calendar.service.CalendarService;
+import kz.kartel.dutyscheduler.components.duty.forms.CreateCommentForm;
 import kz.kartel.dutyscheduler.components.duty.forms.CreateDutyForm;
 import kz.kartel.dutyscheduler.components.duty.forms.DutiesResponse;
+import kz.kartel.dutyscheduler.components.duty.model.Comment;
+import kz.kartel.dutyscheduler.components.duty.model.Duty;
 import kz.kartel.dutyscheduler.components.duty.service.CalendarAccessService;
+import kz.kartel.dutyscheduler.components.duty.service.CommentService;
 import kz.kartel.dutyscheduler.components.duty.service.DutyService;
 import kz.kartel.dutyscheduler.components.user.model.User;
 import kz.kartel.dutyscheduler.components.user.service.UserService;
@@ -17,6 +21,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.security.RolesAllowed;
+import javax.validation.Valid;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -42,9 +47,12 @@ public class DutyScheduleController {
     @Autowired
     private CalendarAccessService calendarAccessService;
 
+    @Autowired
+    private CommentService commentService;
+
     //////////////////registration//////////////////////////
     @RequestMapping(value = "/users/sign-up", method = RequestMethod.POST)
-    public ResponseEntity users(@RequestBody User user) {
+    public ResponseEntity users(@RequestBody @Valid User user) {
         if(userService.getUserByEmail(user.getEmail()) != null){
             return new ResponseEntity("User with email: " + user.getEmail() + " already registered.", HttpStatus.CONFLICT);
         }
@@ -74,7 +82,8 @@ public class DutyScheduleController {
     }
 
     @RequestMapping(value = "/duty", method = RequestMethod.POST)
-    public ResponseEntity<?> createDuty(@RequestBody CreateDutyForm createDutyForm) {
+    public ResponseEntity<?> createDuty(@RequestBody @Valid CreateDutyForm createDutyForm) {
+
         String userName = (String)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if(!calendarAccessService.hasWriteAccess(userName, createDutyForm.getCalId())){
             return new ResponseEntity(new String("Error. You don't have write access to this calendar"), HttpStatus.FORBIDDEN);
@@ -86,8 +95,8 @@ public class DutyScheduleController {
         else if (dutyService.isUserOnDuty(createDutyForm.getUserId(), createDutyForm.getDate(), createDutyForm.getCalId())) {
             return new ResponseEntity(new String("Error. A User with id " + createDutyForm.getUserId() + " is already on duty given day with calendar id:" + createDutyForm.getCalId()), HttpStatus.CONFLICT);
         }
-        else if(vacationService.isUserOnVacation(createDutyForm.getUserId(), createDutyForm.getDate())){
-            return new ResponseEntity(new String("Error. A User with id " + createDutyForm.getUserId() + " is on vacation given day."), HttpStatus.CONFLICT);
+        else if(dutyService.isUserOnVacation(createDutyForm.getUserId(), createDutyForm.getDate(), createDutyForm.getCalId())){
+            return new ResponseEntity(new String("Error. A User with id " + createDutyForm.getUserId() + " is on vacation given day with calendar id:" + createDutyForm.getCalId()), HttpStatus.CONFLICT);
         }
 
         dutyService.saveDuty(createDutyForm);
@@ -97,32 +106,54 @@ public class DutyScheduleController {
     @RequestMapping(value = "/duty/{id}", method = RequestMethod.DELETE)
     public ResponseEntity<?> deleteDuty(@PathVariable("id") long dutyId) {
 
-        if(dutyService.getById(dutyId) == null){
+        Duty duty = dutyService.getById(dutyId);
+        if(duty == null){
             return new ResponseEntity(new String("Error. Duty with id " + dutyId + " doesn't exist."), HttpStatus.NOT_FOUND);
+        }
+
+        String userName = (String)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if(!calendarAccessService.hasWriteAccess(userName, duty.getCalendar().getId())){
+            return new ResponseEntity(new String("Error. You don't have write access to this calendar"), HttpStatus.FORBIDDEN);
         }
 
         dutyService.deleteDuty(dutyId);
         return new ResponseEntity<>("OK. Deleted.", HttpStatus.NO_CONTENT);
     }
 
-    @RequestMapping(value = "/duty/{id}", method = RequestMethod.PUT)
-    public ResponseEntity<?> updateDuty(@PathVariable("id") long dutyId, @RequestBody CreateDutyForm createDutyForm) {
+    //////////////Comment//////////////////
+    @RequestMapping(value = "/comment", method = RequestMethod.POST)
+    public ResponseEntity<?> createDuty(@RequestBody CreateCommentForm createCommentForm) {
 
-        if(dutyService.getById(dutyId) == null){
-            return new ResponseEntity(new String("Error. Duty with id " + createDutyForm.getDutyId() + " doesn't exist."), HttpStatus.NOT_FOUND);
-        }
-        /*else if (dutyService.isUserOnDuty(createDutyForm.getUserId(), createDutyForm.getDate())) {
-            return new ResponseEntity(new String("Error. A User with id " + createDutyForm.getUserId() + " is already on duty given day."), HttpStatus.CONFLICT);
-        }*/
-        else if(vacationService.isUserOnVacation(createDutyForm.getUserId(), createDutyForm.getDate())){
-            return new ResponseEntity(new String("Error. A User with id " + createDutyForm.getUserId() + " is on vacation given day."), HttpStatus.CONFLICT);
+        String userName = (String)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Duty duty = dutyService.getById(createCommentForm.getDutyId());
+        if(duty == null){
+            return new ResponseEntity<>("No duty with id:" + createCommentForm.getDutyId(), HttpStatus.NOT_ACCEPTABLE);
         }
 
-        dutyService.updateDuty(createDutyForm);
-        return new ResponseEntity<>("OK. Updated.", HttpStatus.OK);
+        if(!calendarAccessService.hasWriteAccess(userName, duty.getCalendar().getId())){
+            return new ResponseEntity(new String("Error. You don't have write access to this calendar"), HttpStatus.FORBIDDEN);
+        }
+
+        createCommentForm.setDate(new Date());
+        commentService.save(createCommentForm);
+        return new ResponseEntity<>("OK. Created.", HttpStatus.CREATED);
     }
 
-    //////////////Calendar//////////////////
+    @RequestMapping(value = "/comment/{id}", method = RequestMethod.DELETE)
+    public ResponseEntity<?> deleteComment(@PathVariable("id") long commentId) {
 
+        Comment comment = commentService.getCommentById(commentId);
+        if(comment == null){
+            return new ResponseEntity(new String("Error. Comment with id " + comment + " doesn't exist."), HttpStatus.NOT_FOUND);
+        }
+
+        String userName = (String)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if(!calendarAccessService.hasWriteAccess(userName, comment.getDuty().getCalendar().getId())){
+            return new ResponseEntity(new String("Error. You don't have write access to this calendar"), HttpStatus.FORBIDDEN);
+        }
+
+        commentService.delete(commentId);
+        return new ResponseEntity<>("OK. Deleted.", HttpStatus.NO_CONTENT);
+    }
 
 }
