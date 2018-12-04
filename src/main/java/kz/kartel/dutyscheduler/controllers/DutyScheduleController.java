@@ -1,5 +1,6 @@
 package kz.kartel.dutyscheduler.controllers;
 
+import kz.kartel.dutyscheduler.components.calendar.model.Calendar;
 import kz.kartel.dutyscheduler.components.calendar.service.CalendarService;
 import kz.kartel.dutyscheduler.components.duty.forms.CreateCommentForm;
 import kz.kartel.dutyscheduler.components.duty.forms.CreateDutyForm;
@@ -75,7 +76,8 @@ public class DutyScheduleController {
         List usesDuties = dutyService.getUsersDutiesByDate(date1, date2, calId);
         DutiesResponse dutiesResponse = new DutiesResponse();
         dutiesResponse.setCalendarId(calId);
-        dutiesResponse.setCalendarName(calendarService.getCalendarById(calId).getName());
+        Calendar calendar = calendarService.getCalendarById(calId);
+        dutiesResponse.setCalendarName(calendar != null ? calendar.getName() : "");
         dutiesResponse.setUserDuties(usesDuties);
 
         return new ResponseEntity(dutiesResponse, HttpStatus.OK);

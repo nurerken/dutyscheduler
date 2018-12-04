@@ -5,8 +5,8 @@
 
 	<groupId>kz.kartel</groupId>
 	<artifactId>dutyscheduler</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
-	<packaging>jar</packaging>
+	<version>1.0</version>
+	<packaging>war</packaging>
 
 	<name>dutyscheduler</name>
 	<description>duty scheduler project</description>
