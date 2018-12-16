@@ -8,6 +8,7 @@ public class DutiesResponse {
     private Long calendarId;
     private String calendarName;
     private List<UserDuty> userDuties;
+    private List<Week> weeks;
 
     public Long getCalendarId() {
         return calendarId;
@@ -28,5 +29,12 @@ public class DutiesResponse {
     }
     public void setUserDuties(List<UserDuty> userDuties) {
         this.userDuties = userDuties;
+    }
+
+    public List<Week> getWeeks() {
+        return weeks;
+    }
+    public void setWeeks(List<Week> weeks) {
+        this.weeks = weeks;
     }
 }

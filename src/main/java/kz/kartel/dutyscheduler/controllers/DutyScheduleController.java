@@ -5,6 +5,7 @@ import kz.kartel.dutyscheduler.components.calendar.service.CalendarService;
 import kz.kartel.dutyscheduler.components.duty.forms.CreateCommentForm;
 import kz.kartel.dutyscheduler.components.duty.forms.CreateDutyForm;
 import kz.kartel.dutyscheduler.components.duty.forms.DutiesResponse;
+import kz.kartel.dutyscheduler.components.duty.forms.Week;
 import kz.kartel.dutyscheduler.components.duty.model.Comment;
 import kz.kartel.dutyscheduler.components.duty.model.Duty;
 import kz.kartel.dutyscheduler.components.duty.service.CalendarAccessService;
@@ -24,6 +25,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.annotation.security.RolesAllowed;
 import javax.validation.Valid;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -65,20 +67,19 @@ public class DutyScheduleController {
 
     ///////////////Duty////////////////////
     @RequestMapping(value = "/dutiesByDate", method = RequestMethod.GET)
-    public ResponseEntity dutiesByDate(@RequestParam("date1") String date1Str, @RequestParam("date2") String date2Str, @RequestParam(name = "calId") Long calId) {
-        Date date1 = null, date2 = null;
-        try{
-            date1=new SimpleDateFormat("MM-dd-yyy").parse(date1Str);
-            date2 =new SimpleDateFormat("MM-dd-yyy").parse(date2Str);
-        }catch (Exception ex){
-        }
+    public ResponseEntity dutiesByDate(@RequestParam("year") Integer year, @RequestParam("month") Integer month, @RequestParam(name = "calId") Long calId) {
 
-        List usesDuties = dutyService.getUsersDutiesByDate(date1, date2, calId);
+        Date dateFirstMonday = calendarAccessService.getFirstMonday(year, month);
+        Date dateLastSunday = calendarAccessService.getLastSunday(year, month);
+
+        List usesDuties = dutyService.getUsersDutiesByDate(dateFirstMonday, dateLastSunday, calId);
         DutiesResponse dutiesResponse = new DutiesResponse();
         dutiesResponse.setCalendarId(calId);
         Calendar calendar = calendarService.getCalendarById(calId);
         dutiesResponse.setCalendarName(calendar != null ? calendar.getName() : "");
         dutiesResponse.setUserDuties(usesDuties);
+
+        dutiesResponse.setWeeks(calendarAccessService.getWeeks(dateFirstMonday, dateLastSunday));
 
         return new ResponseEntity(dutiesResponse, HttpStatus.OK);
     }

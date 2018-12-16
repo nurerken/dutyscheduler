@@ -1,7 +1,7 @@
 package kz.kartel.dutyscheduler.components.duty.service;
 
-import kz.kartel.dutyscheduler.components.calendar.model.Calendar;
 import kz.kartel.dutyscheduler.components.duty.forms.CreateDutyForm;
+import kz.kartel.dutyscheduler.components.duty.forms.Week;
 import kz.kartel.dutyscheduler.components.duty.model.CalendarAccess;
 import kz.kartel.dutyscheduler.components.duty.model.Duty;
 import kz.kartel.dutyscheduler.components.duty.repository.CalendarAccessRepository;
@@ -13,7 +13,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -35,5 +38,57 @@ public class CalendarAccessService {
     public boolean hasReadAccess(String userEmail, Long calendarId){
         CalendarAccess calendarAccess = getAccessBy(userEmail, calendarId);
         return calendarAccess != null && (calendarAccess.getRoleId().equals(1) || calendarAccess.getRoleId().equals(2));
+    }
+
+    public Date getFirstMonday(int year, int month) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.YEAR, year);
+        calendar.set(Calendar.MONTH, month);
+        calendar.set(Calendar.DAY_OF_MONTH, 1);
+
+        calendar.add(Calendar.DAY_OF_YEAR, -((calendar.get(Calendar.DAY_OF_WEEK) == 1 ? 8 : calendar.get(Calendar.DAY_OF_WEEK)) - 2));
+        return calendar.getTime();
+    }
+
+    public Date getLastSunday(int year, int month) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.YEAR, year);
+        calendar.set(Calendar.MONTH, month);
+
+        calendar.set(Calendar.DAY_OF_MONTH, calendar.getActualMaximum(Calendar.DAY_OF_MONTH));
+
+        calendar.add(Calendar.DAY_OF_YEAR, (8 - (calendar.get(Calendar.DAY_OF_WEEK) == 1 ? 8 : calendar.get(Calendar.DAY_OF_WEEK))));
+        return calendar.getTime();
+    }
+
+    public List<Week> getWeeks(Date date1, Date date2){
+        List<Week> weeks = new ArrayList<>();
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date1);
+
+        int cnt = 0;
+        Week week = null;
+        while(date1.compareTo(date2) <= 0){
+            if(cnt % 7 == 0){
+                week = new Week();
+                week.setDates(new ArrayList<>());
+            }
+            try {
+                DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+                String strDate1 = dateFormat.format(date1);
+                week.getDates().add(strDate1);
+            }catch (Exception ex){}
+
+            calendar.add(Calendar.DAY_OF_YEAR, 1);
+            date1 = calendar.getTime();
+            cnt++;
+
+            if(cnt % 7 == 0){
+               weeks.add(week);
+            }
+        }
+
+        return weeks;
     }
 }
