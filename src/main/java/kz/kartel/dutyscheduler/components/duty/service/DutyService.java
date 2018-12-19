@@ -1,6 +1,9 @@
 package kz.kartel.dutyscheduler.components.duty.service;
 
-import kz.kartel.dutyscheduler.components.duty.forms.CreateDutyForm;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import kz.kartel.dutyscheduler.components.calendar.model.Calendar;
+import kz.kartel.dutyscheduler.components.calendar.service.CalendarService;
+import kz.kartel.dutyscheduler.components.duty.forms.*;
 import kz.kartel.dutyscheduler.components.duty.model.Duty;
 import kz.kartel.dutyscheduler.components.duty.repository.DutyRepository;
 import kz.kartel.dutyscheduler.components.user.repository.UserRepository;
@@ -10,6 +13,8 @@ import kz.kartel.dutyscheduler.components.vacation.service.VacationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -21,10 +26,10 @@ public class DutyService {
     private DutyRepository dutyRepository;
 
     @Autowired
-    private UserRepository userRepository;
+    private CalendarService calendarService;
 
     @Autowired
-    private VacationService vacationService;
+    CalendarAccessService calendarAccessService;
 
     public Duty getById(Long id){
         return dutyRepository.getDutyById(id);
@@ -47,6 +52,110 @@ public class DutyService {
             duties.add(userDuty);
         }
         return duties;
+    }
+
+    public DutiesResponse getDutiesResponse(Date date1, Date date2, Long calId){
+
+        DutiesResponse dutiesResponse = new DutiesResponse();
+        dutiesResponse.setCalendarId(calId);
+        Calendar calendar = calendarService.getCalendarById(calId);
+        dutiesResponse.setCalendarName(calendar != null ? calendar.getName() : "");
+
+        List<UserDuty> usesDuties = getUsersDutiesByDate(date1, date2, calId);
+
+        dutiesResponse.setWeeks(getWeeks(date1, date2, usesDuties));
+
+        return dutiesResponse;
+    }
+
+    public List<Week> getWeeks(Date date1, Date date2, List<UserDuty> userDuties){
+        List<Week> weeks = new ArrayList<>();
+
+        java.util.Calendar calendar = java.util.Calendar.getInstance();
+        calendar.setTime(date1);
+
+        int cnt = 0;
+        Week week = null;
+        while(date1.compareTo(date2) <= 0){
+            if(cnt % 7 == 0){
+                week = new Week();
+                week.setDates(new ArrayList<>());
+
+                List<DutyUser> dutyUsers = new ArrayList<>();
+                for (UserDuty userDuty : userDuties){
+                    DutyUser dutyUser = new DutyUser();
+                    dutyUser.setId(userDuty.getUserId().intValue());
+                    dutyUser.setName(userDuty.getFirstName() + " " + userDuty.getLastName());
+                    //dutyUser.setEmail();
+                    dutyUser.setDuties(new ArrayList<>());
+                    dutyUsers.add(dutyUser);
+                }
+                week.setUsers(dutyUsers);
+            }
+
+            try {
+                DateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+                String strDate1 = dateFormat.format(date1);
+                week.getDates().add(strDate1);
+
+                for (DutyUser dutyUser : week.getUsers()) {
+                    for (UserDuty userDuty : userDuties) {
+
+                        if(userDuty.getUserId().intValue()== dutyUser.getId().intValue()){
+
+                            DutyInfo dutyInfo = new DutyInfo();
+                            dutyInfo.setDate(strDate1);
+
+                            String dutiesString = userDuty.getDuties();
+
+                            boolean isDuty = false;
+                            if(dutiesString != null && dutiesString.length() > 0){
+                                dutiesString = dutiesString.substring(1, dutiesString.length()-1);
+                                String dutyInfos[] = dutiesString.split(",");
+
+                                dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+                                String strDate = dateFormat.format(date1);
+
+                                for (int i = 0; i < dutyInfos.length; i++){
+                                    String dutyData[] = dutyInfos[i].split("\\|");
+                                    String date = dutyData[1].split(":")[1];
+                                    if(strDate.equals(date)){
+                                        String dId = dutyData[0].split(" : ")[0].replace("\"", "").split(":")[1];
+                                        dutyInfo.setId(Integer.parseInt(dId));
+                                        String dType = dutyData[0].split(" : ")[1].replace("\"", "").split(":")[1];
+                                        dutyInfo.setType(Integer.parseInt(dType));
+                                        dutyInfo.setComments(dutyData[2].split(":")[1]);
+                                        isDuty = true;
+                                        break;
+                                    }
+                                }
+                            }
+
+                            if(!isDuty){
+                                dutyInfo.setType(0);
+                                dutyInfo.setId(null);
+                                dutyInfo.setComments(null);
+                            }
+
+                            dutyUser.getDuties().add(dutyInfo);
+                        }
+                    }
+                }
+
+            }catch (Exception ex){
+                System.out.println(ex);
+            }
+
+            calendar.add(java.util.Calendar.DAY_OF_YEAR, 1);
+            date1 = calendar.getTime();
+            cnt++;
+
+            if(cnt % 7 == 0){
+                weeks.add(week);
+            }
+        }
+
+        return weeks;
     }
 
     public boolean isUserOnDuty(Long userId, Date date, Long calId){

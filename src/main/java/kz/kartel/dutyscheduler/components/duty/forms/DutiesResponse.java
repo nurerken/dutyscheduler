@@ -7,7 +7,7 @@ import java.util.List;
 public class DutiesResponse {
     private Long calendarId;
     private String calendarName;
-    private List<UserDuty> userDuties;
+
     private List<Week> weeks;
 
     public Long getCalendarId() {
@@ -22,13 +22,6 @@ public class DutiesResponse {
     }
     public void setCalendarName(String calendarName) {
         this.calendarName = calendarName;
-    }
-
-    public List<UserDuty> getUserDuties() {
-        return userDuties;
-    }
-    public void setUserDuties(List<UserDuty> userDuties) {
-        this.userDuties = userDuties;
     }
 
     public List<Week> getWeeks() {

@@ -60,35 +60,4 @@ public class CalendarAccessService {
         calendar.add(Calendar.DAY_OF_YEAR, (8 - (calendar.get(Calendar.DAY_OF_WEEK) == 1 ? 8 : calendar.get(Calendar.DAY_OF_WEEK))));
         return calendar.getTime();
     }
-
-    public List<Week> getWeeks(Date date1, Date date2){
-        List<Week> weeks = new ArrayList<>();
-
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(date1);
-
-        int cnt = 0;
-        Week week = null;
-        while(date1.compareTo(date2) <= 0){
-            if(cnt % 7 == 0){
-                week = new Week();
-                week.setDates(new ArrayList<>());
-            }
-            try {
-                DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-                String strDate1 = dateFormat.format(date1);
-                week.getDates().add(strDate1);
-            }catch (Exception ex){}
-
-            calendar.add(Calendar.DAY_OF_YEAR, 1);
-            date1 = calendar.getTime();
-            cnt++;
-
-            if(cnt % 7 == 0){
-               weeks.add(week);
-            }
-        }
-
-        return weeks;
-    }
 }

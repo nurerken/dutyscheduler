@@ -72,15 +72,7 @@ public class DutyScheduleController {
         Date dateFirstMonday = calendarAccessService.getFirstMonday(year, month);
         Date dateLastSunday = calendarAccessService.getLastSunday(year, month);
 
-        List usesDuties = dutyService.getUsersDutiesByDate(dateFirstMonday, dateLastSunday, calId);
-        DutiesResponse dutiesResponse = new DutiesResponse();
-        dutiesResponse.setCalendarId(calId);
-        Calendar calendar = calendarService.getCalendarById(calId);
-        dutiesResponse.setCalendarName(calendar != null ? calendar.getName() : "");
-        dutiesResponse.setUserDuties(usesDuties);
-
-        dutiesResponse.setWeeks(calendarAccessService.getWeeks(dateFirstMonday, dateLastSunday));
-
+        DutiesResponse dutiesResponse = dutyService.getDutiesResponse(dateFirstMonday, dateLastSunday, calId);
         return new ResponseEntity(dutiesResponse, HttpStatus.OK);
     }
 
