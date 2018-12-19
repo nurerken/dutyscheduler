@@ -132,7 +132,7 @@ public class DutyService {
                             }
 
                             if(!isDuty){
-                                dutyInfo.setType(0);
+                                dutyInfo.setType(-1);
                                 dutyInfo.setId(null);
                                 dutyInfo.setComments(null);
                             }
