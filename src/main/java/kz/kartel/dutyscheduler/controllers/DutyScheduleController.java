@@ -65,6 +65,15 @@ public class DutyScheduleController {
         return new ResponseEntity("userId: " + user.getId(), HttpStatus.CREATED);
     }
 
+    ///////////////////currentuser//////////////////////////
+    @RequestMapping(value = "/currentUser", method = RequestMethod.GET)
+    public ResponseEntity getCurrentUser() {
+        String userName = (String)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String response = "{\"username\":\"" + (userName != null ? userName : "") + "\"}";
+        return ResponseEntity.ok(response);
+    }
+
+
     ///////////////Duty////////////////////
     @RequestMapping(value = "/dutiesByDate", method = RequestMethod.GET)
     public ResponseEntity dutiesByDate(@RequestParam("year") Integer year, @RequestParam("month") Integer month, @RequestParam(name = "calId") Long calId) {
