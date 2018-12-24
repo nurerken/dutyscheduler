@@ -57,12 +57,11 @@ public class DutyService {
     public DutiesResponse getDutiesResponse(Date date1, Date date2, Long calId){
 
         DutiesResponse dutiesResponse = new DutiesResponse();
-        dutiesResponse.setCalendarId(calId);
-        Calendar calendar = calendarService.getCalendarById(calId);
-        dutiesResponse.setCalendarName(calendar != null ? calendar.getName() : "");
+
+        List<Calendar> calendars = calendarService.getCalendarsAll();
+        dutiesResponse.setCalendars(calendars);
 
         List<UserDuty> usesDuties = getUsersDutiesByDate(date1, date2, calId);
-
         dutiesResponse.setWeeks(getWeeks(date1, date2, usesDuties));
 
         return dutiesResponse;
