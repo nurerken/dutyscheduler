@@ -7,6 +7,7 @@ import kz.kartel.dutyscheduler.components.duty.forms.*;
 import kz.kartel.dutyscheduler.components.duty.model.Duty;
 import kz.kartel.dutyscheduler.components.duty.repository.DutyRepository;
 import kz.kartel.dutyscheduler.components.user.repository.UserRepository;
+import kz.kartel.dutyscheduler.components.user.service.UserService;
 import kz.kartel.dutyscheduler.components.vacation.model.UserDuty;
 import kz.kartel.dutyscheduler.components.vacation.repository.VacationRepository;
 import kz.kartel.dutyscheduler.components.vacation.service.VacationService;
@@ -30,6 +31,9 @@ public class DutyService {
 
     @Autowired
     CalendarAccessService calendarAccessService;
+
+    @Autowired
+    UserService userService;
 
     public Duty getById(Long id){
         return dutyRepository.getDutyById(id);
@@ -62,12 +66,12 @@ public class DutyService {
         dutiesResponse.setCalendars(calendars);
 
         List<UserDuty> usesDuties = getUsersDutiesByDate(date1, date2, calId);
-        dutiesResponse.setWeeks(getWeeks(date1, date2, usesDuties));
+        dutiesResponse.setWeeks(getWeeks(date1, date2, usesDuties, calId.intValue()));
 
         return dutiesResponse;
     }
 
-    public List<Week> getWeeks(Date date1, Date date2, List<UserDuty> userDuties){
+    public List<Week> getWeeks(Date date1, Date date2, List<UserDuty> userDuties, Integer calId){
         List<Week> weeks = new ArrayList<>();
 
         java.util.Calendar calendar = java.util.Calendar.getInstance();
@@ -104,6 +108,8 @@ public class DutyService {
 
                             DutyInfo dutyInfo = new DutyInfo();
                             dutyInfo.setDate(strDate1);
+                            dutyInfo.setUserId(dutyUser.getId());
+                            dutyInfo.setCalId(calId);
 
                             String dutiesString = userDuty.getDuties();
 
@@ -117,12 +123,14 @@ public class DutyService {
 
                                 for (int i = 0; i < dutyInfos.length; i++){
                                     String dutyData[] = dutyInfos[i].split("\\|");
-                                    String date = dutyData[1].split(":")[1];
+                                    String date = dutyData[2].split(":")[1];
                                     if(strDate.equals(date)){
                                         String dId = dutyData[0].split(" : ")[0].replace("\"", "").split(":")[1];
                                         dutyInfo.setId(Integer.parseInt(dId));
+
                                         String dType = dutyData[0].split(" : ")[1].replace("\"", "").split(":")[1];
                                         dutyInfo.setType(Integer.parseInt(dType));
+
                                         dutyInfo.setComments(dutyData[2].split(":")[1]);
                                         isDuty = true;
                                         break;
@@ -157,6 +165,11 @@ public class DutyService {
         return weeks;
     }
 
+    public Duty getDuty(Long userId, Date date, Long calId){
+        Duty duty = dutyRepository.getOnDutyUserId(userId, date, calId);
+        return duty;
+    }
+
     public boolean isUserOnDuty(Long userId, Date date, Long calId){
         Duty duty = dutyRepository.getOnDutyUserId(userId, date, calId);
         return duty != null && !duty.getDutyType().equals(0);
@@ -167,8 +180,15 @@ public class DutyService {
         return duty != null && duty.getDutyType().equals(0);
     }
 
-    public void saveDuty(CreateDutyForm dutyForm){
-        dutyRepository.saveDuty(dutyForm.getUserId(), dutyForm.getDate(), dutyForm.getDutyType(), dutyForm.getCalId());
+    public Long saveDuty(CreateDutyForm dutyForm){
+        Duty duty = new Duty();
+        duty.setUser(userService.getUserById(dutyForm.getUserId()));
+        duty.setDate(dutyForm.getDate());
+        duty.setDutyType(dutyForm.getDutyType());
+        duty.setCalendar(calendarService.getCalendarById(dutyForm.getCalId()));
+        dutyRepository.save(duty);
+        return duty.getId();
+        ///dutyRepository.saveDuty(dutyForm.getUserId(), dutyForm.getDate(), dutyForm.getDutyType(), dutyForm.getCalId());
     }
 
     public void updateDuty(CreateDutyForm createDutyForm){

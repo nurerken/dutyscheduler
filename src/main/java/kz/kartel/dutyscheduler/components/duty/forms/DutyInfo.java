@@ -1,9 +1,11 @@
 package kz.kartel.dutyscheduler.components.duty.forms;
 
 public class DutyInfo {
+    private Integer id;
     private String date;
     private Integer type;
-    private Integer id;
+    private Integer userId;
+    private Integer calId;
     private String comments;
 
     public String getDate() {
@@ -32,5 +34,19 @@ public class DutyInfo {
     }
     public void setComments(String comments) {
         this.comments = comments;
+    }
+
+    public Integer getUserId() {
+        return userId;
+    }
+    public void setUserId(Integer userId) {
+        this.userId = userId;
+    }
+
+    public Integer getCalId() {
+        return calId;
+    }
+    public void setCalId(Integer calId) {
+        this.calId = calId;
     }
 }

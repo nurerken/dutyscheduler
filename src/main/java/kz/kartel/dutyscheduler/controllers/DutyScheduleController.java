@@ -90,21 +90,31 @@ public class DutyScheduleController {
 
         String userName = (String)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if(!calendarAccessService.hasWriteAccess(userName, createDutyForm.getCalId())){
-            return new ResponseEntity(new String("Error. You don't have write access to this calendar"), HttpStatus.FORBIDDEN);
+            return new ResponseEntity(new String( "{\"Result\":\"Error. You don't have write access to this calendar\"}"), HttpStatus.FORBIDDEN);
         }
 
         if(userService.getUserById(createDutyForm.getUserId()) == null){
-            return new ResponseEntity(new String("Error. A User with id " + createDutyForm.getUserId() + " doesn't exist."), HttpStatus.NOT_ACCEPTABLE);
-        }
-        else if (dutyService.isUserOnDuty(createDutyForm.getUserId(), createDutyForm.getDate(), createDutyForm.getCalId())) {
-            return new ResponseEntity(new String("Error. A User with id " + createDutyForm.getUserId() + " is already on duty given day with calendar id:" + createDutyForm.getCalId()), HttpStatus.CONFLICT);
-        }
-        else if(dutyService.isUserOnVacation(createDutyForm.getUserId(), createDutyForm.getDate(), createDutyForm.getCalId())){
-            return new ResponseEntity(new String("Error. A User with id " + createDutyForm.getUserId() + " is on vacation given day with calendar id:" + createDutyForm.getCalId()), HttpStatus.CONFLICT);
+            return new ResponseEntity(new String("{\"Result\":\"Error. A User with id \"" + createDutyForm.getUserId() + "\" doesn't exist.\"}"), HttpStatus.NOT_ACCEPTABLE);
         }
 
-        dutyService.saveDuty(createDutyForm);
-        return new ResponseEntity<>("OK. Created.", HttpStatus.CREATED);
+        Long dutyID = -1L;
+        Duty duty = dutyService.getDuty(createDutyForm.getUserId(), createDutyForm.getDate(), createDutyForm.getCalId());
+        if (duty != null){
+            createDutyForm.setDutyId(duty.getId());
+
+            if(duty.getDutyType().equals(createDutyForm.getDutyType())){
+                dutyService.deleteDuty(createDutyForm.getDutyId());
+            }
+            else{
+                dutyService.updateDuty(createDutyForm);
+                dutyID = duty.getId();
+            }
+        }
+        else{
+            dutyID = dutyService.saveDuty(createDutyForm);
+        }
+
+        return new ResponseEntity<>("{\"Result\":\"SUCCESS\", \"dutyID\":\"" + dutyID + "\"}", HttpStatus.OK);
     }
 
     @RequestMapping(value = "/duty/{id}", method = RequestMethod.DELETE)
