@@ -123,7 +123,7 @@ public class DutyService {
 
                                 for (int i = 0; i < dutyInfos.length; i++){
                                     String dutyData[] = dutyInfos[i].split("\\|");
-                                    String date = dutyData[2].split(":")[1];
+                                    String date = dutyData[2].split(":")[1].replace("\"", "");
                                     if(strDate.equals(date)){
                                         String dId = dutyData[0].split(" : ")[0].replace("\"", "").split(":")[1];
                                         dutyInfo.setId(Integer.parseInt(dId));
