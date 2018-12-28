@@ -6,6 +6,8 @@ import kz.kartel.dutyscheduler.components.duty.repository.CommentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
+
 
 @Service
 public class CommentService {
@@ -17,8 +19,8 @@ public class CommentService {
         return commentRepository.getComment(id);
     }
 
-    public void save(CreateCommentForm createCommentForm){
-        commentRepository.saveComment(createCommentForm.getDutyId(), createCommentForm.getText(), createCommentForm.getDate());
+    public void save(Long dutyId, String comment, Date insertDate){
+        commentRepository.saveComment(dutyId, comment, insertDate);
     }
 
     public void delete(Long id){

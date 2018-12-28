@@ -136,21 +136,21 @@ public class DutyScheduleController {
 
     //////////////Comment//////////////////
     @RequestMapping(value = "/comment", method = RequestMethod.POST)
-    public ResponseEntity<?> createDuty(@RequestBody CreateCommentForm createCommentForm) {
+    public ResponseEntity<?> createComment(@RequestBody CreateCommentForm createCommentForm) {
+
+        Duty duty = dutyService.getDuty(createCommentForm.getUserId(), createCommentForm.getDate(), createCommentForm.getCalId());
+        if(duty == null){
+            return new ResponseEntity<>("{\"Result\":\"Error. No such duty\"}", HttpStatus.OK);
+        }
 
         String userName = (String)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        Duty duty = dutyService.getById(createCommentForm.getDutyId());
-        if(duty == null){
-            return new ResponseEntity<>("No duty with id:" + createCommentForm.getDutyId(), HttpStatus.NOT_ACCEPTABLE);
-        }
 
         if(!calendarAccessService.hasWriteAccess(userName, duty.getCalendar().getId())){
-            return new ResponseEntity(new String("Error. You don't have write access to this calendar"), HttpStatus.FORBIDDEN);
+            return new ResponseEntity(new String("{\"Result\":\"Error. You don't have write access to this calendar\"}"), HttpStatus.OK);
         }
 
-        createCommentForm.setDate(new Date());
-        commentService.save(createCommentForm);
-        return new ResponseEntity<>("OK. Created.", HttpStatus.CREATED);
+        commentService.save(duty.getId(), createCommentForm.getText(), new Date());
+        return new ResponseEntity<>("{\"Result\":\"SUCCESS\"}", HttpStatus.CREATED);
     }
 
     @RequestMapping(value = "/comment/{id}", method = RequestMethod.DELETE)

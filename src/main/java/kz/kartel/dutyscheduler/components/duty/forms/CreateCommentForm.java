@@ -5,19 +5,23 @@ import java.util.Date;
 
 public class CreateCommentForm {
 
-    @NotNull(message = "dutyId is null")
-    private Long dutyId;
-
-    @NotNull(message = "text is null")
+    private Long userId;
+    private Long calId;
+    private Date date;
     private String text;
 
-    private Date date;
-
-    public Long getDutyId() {
-        return dutyId;
+    public Long getUserId() {
+        return userId;
     }
-    public void setDutyId(Long dutyId) {
-        this.dutyId = dutyId;
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
+
+    public Long getCalId() {
+        return calId;
+    }
+    public void setCalId(Long calId) {
+        this.calId = calId;
     }
 
     public Date getDate() {
