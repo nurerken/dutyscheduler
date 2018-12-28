@@ -90,11 +90,11 @@ public class DutyScheduleController {
 
         String userName = (String)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if(!calendarAccessService.hasWriteAccess(userName, createDutyForm.getCalId())){
-            return new ResponseEntity(new String( "{\"Result\":\"Error. You don't have write access to this calendar\"}"), HttpStatus.FORBIDDEN);
+            return new ResponseEntity(new String( "{\"Result\":\"Error. You don't have write access to this calendar\"}"), HttpStatus.OK);
         }
 
         if(userService.getUserById(createDutyForm.getUserId()) == null){
-            return new ResponseEntity(new String("{\"Result\":\"Error. A User with id \"" + createDutyForm.getUserId() + "\" doesn't exist.\"}"), HttpStatus.NOT_ACCEPTABLE);
+            return new ResponseEntity(new String("{\"Result\":\"Error. A User with id \"" + createDutyForm.getUserId() + "\" doesn't exist.\"}"), HttpStatus.OK);
         }
 
         Long dutyID = -1L;
