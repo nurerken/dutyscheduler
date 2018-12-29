@@ -1,6 +1,8 @@
 package kz.kartel.dutyscheduler.components.duty.model;
 
 
+import kz.kartel.dutyscheduler.components.user.model.User;
+
 import javax.persistence.*;
 import java.util.Date;
 
@@ -11,6 +13,7 @@ public class Comment {
     private Duty duty;
     private String text;
     private Date insertDate;
+    private User user;
 
     @Id
     @GeneratedValue
@@ -45,5 +48,14 @@ public class Comment {
     }
     public void setInsertDate(Date insertDate) {
         this.insertDate = insertDate;
+    }
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name="user_id")
+    public User getUser() {
+        return user;
+    }
+    public void setUser(User user) {
+        this.user = user;
     }
 }

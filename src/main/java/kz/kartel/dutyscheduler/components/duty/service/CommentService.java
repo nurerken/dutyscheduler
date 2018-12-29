@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.List;
 
 
 @Service
@@ -19,8 +20,12 @@ public class CommentService {
         return commentRepository.getComment(id);
     }
 
-    public void save(Long dutyId, String comment, Date insertDate){
-        commentRepository.saveComment(dutyId, comment, insertDate);
+    public List<Comment> getCommentsByDutyId(Long dutyId){
+        return commentRepository.getComments(dutyId);
+    }
+
+    public void save(Long dutyId, String comment, Date insertDate, Long userId){
+        commentRepository.saveComment(dutyId, comment, insertDate, userId);
     }
 
     public void delete(Long id){

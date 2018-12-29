@@ -1,12 +1,12 @@
 package kz.kartel.dutyscheduler.controllers;
 
-import kz.kartel.dutyscheduler.components.calendar.model.Calendar;
 import kz.kartel.dutyscheduler.components.calendar.service.CalendarService;
+import kz.kartel.dutyscheduler.components.comment.Comment;
+import kz.kartel.dutyscheduler.components.comment.Comments;
+import kz.kartel.dutyscheduler.components.comment.GetCommentForm;
 import kz.kartel.dutyscheduler.components.duty.forms.CreateCommentForm;
 import kz.kartel.dutyscheduler.components.duty.forms.CreateDutyForm;
 import kz.kartel.dutyscheduler.components.duty.forms.DutiesResponse;
-import kz.kartel.dutyscheduler.components.duty.forms.Week;
-import kz.kartel.dutyscheduler.components.duty.model.Comment;
 import kz.kartel.dutyscheduler.components.duty.model.Duty;
 import kz.kartel.dutyscheduler.components.duty.service.CalendarAccessService;
 import kz.kartel.dutyscheduler.components.duty.service.CommentService;
@@ -22,8 +22,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-import javax.annotation.security.RolesAllowed;
 import javax.validation.Valid;
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -135,6 +135,35 @@ public class DutyScheduleController {
     }
 
     //////////////Comment//////////////////
+    @RequestMapping(value = "/commentsByDuty", method = RequestMethod.POST)
+    public ResponseEntity commentsByDuty(@RequestBody GetCommentForm getCommentForm) throws Exception{
+
+        Duty duty = dutyService.getDuty(getCommentForm.getUserId(), getCommentForm.getDate(), getCommentForm.getCalId());
+        if(duty == null){
+            return new ResponseEntity<>("{\"Result\":\"Error. No such duty\"}", HttpStatus.OK);
+        }
+
+        List<kz.kartel.dutyscheduler.components.duty.model.Comment> comments = commentService.getCommentsByDutyId(duty.getId());
+        List<Comment> commentsLists = new ArrayList<>();
+        for (kz.kartel.dutyscheduler.components.duty.model.Comment comment: comments){
+            Comment commentsList = new Comment();
+            commentsList.setId(comment.getId());
+            commentsList.setText(comment.getText());
+            String authorName = comment.getUser().getFirstName() + " " + comment.getUser().getLastName();
+            commentsList.setAuthorName(authorName);
+
+            DateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");
+            Date date = formatter.parse(formatter.format(comment.getInsertDate()));
+            commentsList.setInsertDate(date);
+            commentsLists.add(commentsList);
+        }
+        Comments commentsReturn = new Comments();
+        commentsReturn.setComments(commentsLists);
+        commentsReturn.setResult("SUCCESS");
+
+        return new ResponseEntity(commentsReturn, HttpStatus.OK);
+    }
+
     @RequestMapping(value = "/comment", method = RequestMethod.POST)
     public ResponseEntity<?> createComment(@RequestBody CreateCommentForm createCommentForm) {
 
@@ -149,14 +178,14 @@ public class DutyScheduleController {
             return new ResponseEntity(new String("{\"Result\":\"Error. You don't have write access to this calendar\"}"), HttpStatus.OK);
         }
 
-        commentService.save(duty.getId(), createCommentForm.getText(), new Date());
+        commentService.save(duty.getId(), createCommentForm.getText(), new Date(), userService.getUserByEmail(userName).getId());
         return new ResponseEntity<>("{\"Result\":\"SUCCESS\"}", HttpStatus.CREATED);
     }
 
     @RequestMapping(value = "/comment/{id}", method = RequestMethod.DELETE)
     public ResponseEntity<?> deleteComment(@PathVariable("id") long commentId) {
 
-        Comment comment = commentService.getCommentById(commentId);
+        kz.kartel.dutyscheduler.components.duty.model.Comment comment = commentService.getCommentById(commentId);
         if(comment == null){
             return new ResponseEntity(new String("Error. Comment with id " + comment + " doesn't exist."), HttpStatus.NOT_FOUND);
         }

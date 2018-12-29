@@ -21,10 +21,13 @@ public interface CommentRepository extends JpaRepository<Comment, Long>{
     @Query("select c from Comment c where c.id = :id")
     public Comment getComment(@Param("id") Long id);
 
+    @Query("select c from Comment c where c.duty.id = :dutyId")
+    public List<Comment> getComments(@Param("dutyId") Long dutyId);
+
     @Modifying
     @Transactional
-    @Query(value="insert into comments (duty_id, text, insert_date) values (:duty_id, :text, :insert_date)", nativeQuery = true)
-    public void saveComment(@Param("duty_id") Long dutyId, @Param("text") String text, @Param("insert_date") Date insertDate);
+    @Query(value="insert into comments (duty_id, text, insert_date, user_id) values (:duty_id, :text, :insert_date, :user_id)", nativeQuery = true)
+    public void saveComment(@Param("duty_id") Long dutyId, @Param("text") String text, @Param("insert_date") Date insertDate, @Param("user_id") Long userId);
 
     @Modifying
     @Transactional
