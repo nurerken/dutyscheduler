@@ -11,14 +11,13 @@ import java.util.List;
 @Table(name="users")
 public class User {
     private Long id;
-    @NotNull(message = "email is null")
     private String email;
-    @NotNull(message = "firstname is null")
     private String firstName;
-    @NotNull(message = "lastname is null")
     private String lastName;
-    @NotNull(message = "password is null")
-    private String password;
+    private String title;
+    private String phone;
+    private String department;
+    private String address;
 
     @Id
     @SequenceGenerator(name="user_id_generator", sequenceName = "users_sequence", allocationSize=1)
@@ -54,11 +53,35 @@ public class User {
         this.lastName = lastName;
     }
 
-    //@Column(name="password")
-    public String getPassword() {
-        return password;
+    @Column(name="title")
+    public String getTitle() {
+        return title;
     }
-    public void setPassword(String password) {
-        this.password = password;
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    @Column(name="phone")
+    public String getPhone() {
+        return phone;
+    }
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+    @Column(name="department")
+    public String getDepartment() {
+        return department;
+    }
+    public void setDepartment(String department) {
+        this.department = department;
+    }
+
+    @Column(name="address")
+    public String getAddress() {
+        return address;
+    }
+    public void setAddress(String address) {
+        this.address = address;
     }
 }

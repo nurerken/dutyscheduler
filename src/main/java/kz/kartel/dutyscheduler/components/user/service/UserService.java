@@ -22,11 +22,23 @@ public class UserService {
         return (userRepository.getUserById(userId));
     }
 
+    public Integer getLastUserId(){
+        return (Integer)userRepository.getLastIUserId();
+    }
+
     public User getUserByEmail(String email){
         return userRepository.findByEmail(email);
     }
 
     public Long saveUser(User user){
         return userRepository.save(user).getId();
+    }
+
+    public void saveUser(String firstName, String lastName, String email, String title, String phone, String department, String address){
+        userRepository.saveUser(getLastUserId() + 1, firstName, lastName, email, title, phone, department, address);
+    }
+
+    public void updateUser(String firstName, String lastName, String title, String phone,String department, String address, String email){
+        userRepository.updateUser(firstName, lastName, title, phone, department, address, email);
     }
 }

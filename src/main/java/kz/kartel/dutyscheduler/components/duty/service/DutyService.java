@@ -88,7 +88,7 @@ public class DutyService {
                 for (UserDuty userDuty : userDuties){
                     DutyUser dutyUser = new DutyUser();
                     dutyUser.setId(userDuty.getUserId().intValue());
-                    dutyUser.setName(userDuty.getFirstName() + " " + userDuty.getLastName());
+                    dutyUser.setName(userDuty.getLastName() + " " + userDuty.getFirstName());
                     //dutyUser.setEmail();
                     dutyUser.setDuties(new ArrayList<>());
                     dutyUsers.add(dutyUser);

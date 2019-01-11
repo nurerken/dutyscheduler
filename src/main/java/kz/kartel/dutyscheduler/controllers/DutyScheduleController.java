@@ -1,5 +1,6 @@
 package kz.kartel.dutyscheduler.controllers;
 
+import com.auth0.jwt.JWT;
 import kz.kartel.dutyscheduler.components.calendar.service.CalendarService;
 import kz.kartel.dutyscheduler.components.comment.Comment;
 import kz.kartel.dutyscheduler.components.comment.Comments;
@@ -11,23 +12,35 @@ import kz.kartel.dutyscheduler.components.duty.model.Duty;
 import kz.kartel.dutyscheduler.components.duty.service.CalendarAccessService;
 import kz.kartel.dutyscheduler.components.duty.service.CommentService;
 import kz.kartel.dutyscheduler.components.duty.service.DutyService;
+import kz.kartel.dutyscheduler.components.user.forms.LoginForm;
 import kz.kartel.dutyscheduler.components.user.model.User;
 import kz.kartel.dutyscheduler.components.user.service.UserService;
 import kz.kartel.dutyscheduler.components.vacation.service.VacationService;
+import kz.kartel.dutyscheduler.security.LdapUtil;
+import kz.kartel.dutyscheduler.security.SecurityConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
+import javax.naming.ldap.LdapContext;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
+import static com.auth0.jwt.algorithms.Algorithm.HMAC512;
+import static kz.kartel.dutyscheduler.security.SecurityConstants.EXPIRATION_TIME;
+import static kz.kartel.dutyscheduler.security.SecurityConstants.SECRET;
+import static kz.kartel.dutyscheduler.security.SecurityConstants.TOKEN_PREFIX;
 
 @Controller
 public class DutyScheduleController {
@@ -53,16 +66,56 @@ public class DutyScheduleController {
     @Autowired
     private CommentService commentService;
 
-    //////////////////registration//////////////////////////
-    @RequestMapping(value = "/users/sign-up", method = RequestMethod.POST)
+    //////////////////USER//////////////////////////
+    @RequestMapping(value = SecurityConstants.SIGN_UP_URL, method = RequestMethod.POST)
     public ResponseEntity users(@RequestBody @Valid User user) {
         if(userService.getUserByEmail(user.getEmail()) != null){
             return new ResponseEntity("User with email: " + user.getEmail() + " already registered.", HttpStatus.CONFLICT);
         }
 
-        user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
+        //user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
         userService.saveUser(user);
         return new ResponseEntity("userId: " + user.getId(), HttpStatus.CREATED);
+    }
+
+    @RequestMapping(value = SecurityConstants.AUTHENTICATE_URL, method = RequestMethod.POST)
+    public ResponseEntity authenticate(@RequestBody LoginForm loginForm, HttpSession httpSession) throws Exception{
+
+        boolean isUserAuthenticated = LdapUtil.isAuhtenticated(loginForm.getEmail(), loginForm.getPassword(), httpSession);
+
+        if(isUserAuthenticated){
+            if(userService.getUserByEmail(loginForm.getEmail()) == null) {
+                userService.saveUser("","", loginForm.getEmail(), "", "", "", "");
+            }
+
+            String token = JWT.create()
+                    .withSubject(loginForm.getEmail())
+                    .withExpiresAt(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
+                    .sign(HMAC512(SECRET.getBytes()));
+            return new ResponseEntity("{\n" + "\t\"JWT\":\"" + TOKEN_PREFIX + token + "\"}", HttpStatus.CREATED);
+        }
+
+        return new ResponseEntity("", HttpStatus.UNAUTHORIZED);
+    }
+
+    @RequestMapping(value = SecurityConstants.USER_URL, method = RequestMethod.GET)
+    public ResponseEntity getUser(@RequestParam("email") String email, HttpSession httpSession) {
+
+        LdapContext ldapContext = (LdapContext)httpSession.getAttribute(SecurityConstants.ldapContextKey);
+        String userInfo = LdapUtil.getUserInfo(email, ldapContext);
+
+        if(!StringUtils.isEmpty(userInfo)){
+            String userInfos[] = userInfo.split("\\|");
+            userService.updateUser(!StringUtils.isEmpty(userInfos[0]) && !userInfos[0].equals("null") ? userInfos[0].split(":")[1].trim() : "",
+                                   !StringUtils.isEmpty(userInfos[1]) && !userInfos[1].equals("null") ? userInfos[1].split(":")[1].trim() : "",
+                                   !StringUtils.isEmpty(userInfos[2]) && !userInfos[2].equals("null") ? userInfos[2].split(":")[1].trim() : "",
+                                   !StringUtils.isEmpty(userInfos[3]) && !userInfos[3].equals("null") ? userInfos[3].split(":")[1].trim() : "",
+                                   !StringUtils.isEmpty(userInfos[4]) && !userInfos[4].equals("null") ? userInfos[4].split(":")[1].trim() : "",
+                                   !StringUtils.isEmpty(userInfos[5]) && !userInfos[5].equals("null") ? userInfos[5].split(":")[1].trim() : "",
+                                   email);
+        }
+
+        return ResponseEntity.ok(userService.getUserByEmail(email));
     }
 
     ///////////////////currentuser//////////////////////////
@@ -73,9 +126,8 @@ public class DutyScheduleController {
         return ResponseEntity.ok(response);
     }
 
-
-    ///////////////Duty////////////////////
-    @RequestMapping(value = "/dutiesByDate", method = RequestMethod.GET)
+    ///////////////DUTY////////////////////
+    @RequestMapping(value = SecurityConstants.DUTIES_URL, method = RequestMethod.GET)
     public ResponseEntity dutiesByDate(@RequestParam("year") Integer year, @RequestParam("month") Integer month, @RequestParam(name = "calId") Long calId) {
 
         Date dateFirstMonday = calendarAccessService.getFirstMonday(year, month);
@@ -134,8 +186,8 @@ public class DutyScheduleController {
         return new ResponseEntity<>("OK. Deleted.", HttpStatus.NO_CONTENT);
     }
 
-    //////////////Comment//////////////////
-    @RequestMapping(value = "/commentsByDuty", method = RequestMethod.POST)
+    //////////////COMMENT//////////////////
+    @RequestMapping(value = SecurityConstants.COMMENTS_URL, method = RequestMethod.POST)
     public ResponseEntity commentsByDuty(@RequestBody GetCommentForm getCommentForm) throws Exception{
 
         Duty duty = dutyService.getDuty(getCommentForm.getUserId(), getCommentForm.getDate(), getCommentForm.getCalId());
