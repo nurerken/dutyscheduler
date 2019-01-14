@@ -6,6 +6,7 @@ public class DutyInfo {
     private Integer type;
     private Integer userId;
     private Integer calId;
+    private Integer dayType;
     private String comments;
 
     public String getDate() {
@@ -48,5 +49,13 @@ public class DutyInfo {
     }
     public void setCalId(Integer calId) {
         this.calId = calId;
+    }
+
+    public Integer getDayType() {
+        return dayType;
+    }
+
+    public void setDayType(Integer dayType) {
+        this.dayType = dayType;
     }
 }

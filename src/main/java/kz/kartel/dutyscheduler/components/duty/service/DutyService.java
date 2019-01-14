@@ -6,11 +6,14 @@ import kz.kartel.dutyscheduler.components.calendar.service.CalendarService;
 import kz.kartel.dutyscheduler.components.duty.forms.*;
 import kz.kartel.dutyscheduler.components.duty.model.Duty;
 import kz.kartel.dutyscheduler.components.duty.repository.DutyRepository;
+import kz.kartel.dutyscheduler.components.special_date.SpecialDate;
+import kz.kartel.dutyscheduler.components.special_date.SpecialDateService;
 import kz.kartel.dutyscheduler.components.user.repository.UserRepository;
 import kz.kartel.dutyscheduler.components.user.service.UserService;
 import kz.kartel.dutyscheduler.components.vacation.model.UserDuty;
 import kz.kartel.dutyscheduler.components.vacation.repository.VacationRepository;
 import kz.kartel.dutyscheduler.components.vacation.service.VacationService;
+import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -34,6 +37,9 @@ public class DutyService {
 
     @Autowired
     UserService userService;
+
+    @Autowired
+    SpecialDateService specialDateService;
 
     public Duty getById(Long id){
         return dutyRepository.getDutyById(id);
@@ -77,6 +83,9 @@ public class DutyService {
         java.util.Calendar calendar = java.util.Calendar.getInstance();
         calendar.setTime(date1);
 
+        List<Date> holidayDates = specialDateService.getSpecialDates(date1, date2, 1);
+        List<Date> workingWeekends = specialDateService.getSpecialDates(date1, date2, 2);
+
         int cnt = 0;
         Week week = null;
         while(date1.compareTo(date2) <= 0){
@@ -110,6 +119,29 @@ public class DutyService {
                             dutyInfo.setDate(strDate1);
                             dutyInfo.setUserId(dutyUser.getId());
                             dutyInfo.setCalId(calId);
+
+                            java.util.Calendar c1 = java.util.Calendar.getInstance();
+                            c1.setTime(date1);
+                            if (c1.get(java.util.Calendar.DAY_OF_WEEK) == java.util.Calendar.SATURDAY || c1.get(java.util.Calendar.DAY_OF_WEEK) == java.util.Calendar.SUNDAY) {
+                                dutyInfo.setDayType(1);
+
+                                for (Date date: workingWeekends){
+                                    if(DateUtils.isSameDay(date1, date)) {
+                                        dutyInfo.setDayType(2);
+                                        break;
+                                    }
+                                }
+                            }
+                            else {
+                                dutyInfo.setDayType(2);
+
+                                for (Date date: holidayDates){
+                                    if(DateUtils.isSameDay(date1, date)){
+                                        dutyInfo.setDayType(1);
+                                        break;
+                                    }
+                                }
+                            }
 
                             String dutiesString = userDuty.getDuties();
 
