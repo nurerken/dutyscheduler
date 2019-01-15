@@ -16,4 +16,7 @@ public interface SpecialDateRepository extends JpaRepository<SpecialDate, Long> 
 
     @Query("select sd.date from SpecialDate sd where sd.date >= :date1 and sd.date <= :date2 and sd.type = :type")
     public List<Date> getSpecialDates(@Param("date1") Date date1, @Param("date2") Date date2, @Param("type") Integer type);
+
+    @Query(value = "select * from get_statistics(:date1, :date2, :calId)", nativeQuery = true)
+    public List<Object[]> getDutyStatistics(@Param("date1") Date date1, @Param("date2") Date date2, @Param("calId") Integer calId);
 }

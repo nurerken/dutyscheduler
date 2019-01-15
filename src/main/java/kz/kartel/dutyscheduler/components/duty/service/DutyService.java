@@ -74,6 +74,7 @@ public class DutyService {
         List<UserDuty> usesDuties = getUsersDutiesByDate(date1, date2, calId);
         dutiesResponse.setWeeks(getWeeks(date1, date2, usesDuties, calId.intValue()));
 
+        dutiesResponse.setDutyStatistics(specialDateService.getDutyStatistics(date1, date2, calId));
         return dutiesResponse;
     }
 
