@@ -81,7 +81,7 @@ public class DutyScheduleController {
     @RequestMapping(value = SecurityConstants.AUTHENTICATE_URL, method = RequestMethod.POST)
     public ResponseEntity authenticate(@RequestBody LoginForm loginForm, HttpSession httpSession) throws Exception{
 
-        boolean isUserAuthenticated = LdapUtil.isAuhtenticated(loginForm.getEmail(), loginForm.getPassword(), httpSession);
+        boolean isUserAuthenticated = LdapUtil.isAuhtenticated(loginForm.getEmail(), loginForm.getPassword(), httpSession, userService);
 
         if(isUserAuthenticated){
             if(userService.getUserByEmail(loginForm.getEmail()) == null) {
@@ -99,22 +99,10 @@ public class DutyScheduleController {
     }
 
     @RequestMapping(value = SecurityConstants.USER_URL, method = RequestMethod.GET)
-    public ResponseEntity getUser(@RequestParam("email") String email, HttpSession httpSession) {
+    public ResponseEntity getUser(@RequestParam("userid") Long userId) {
 
-        LdapContext ldapContext = (LdapContext)httpSession.getAttribute(SecurityConstants.ldapContextKey);
-        String userInfo = LdapUtil.getUserInfo(email, ldapContext);
-
-        if(!StringUtils.isEmpty(userInfo)){
-            String userInfos[] = userInfo.split("\\|");
-            userService.updateUser(!StringUtils.isEmpty(userInfos[0]) && !userInfos[0].equals("null") ? userInfos[0].split(":")[1].trim() : "",
-                                   !StringUtils.isEmpty(userInfos[1]) && !userInfos[1].equals("null") ? userInfos[1].split(":")[1].trim() : "",
-                                   !StringUtils.isEmpty(userInfos[2]) && !userInfos[2].equals("null") ? userInfos[2].split(":")[1].trim() : "",
-                                   !StringUtils.isEmpty(userInfos[3]) && !userInfos[3].equals("null") ? userInfos[3].split(":")[1].trim() : "",
-                                   !StringUtils.isEmpty(userInfos[4]) && !userInfos[4].equals("null") ? userInfos[4].split(":")[1].trim() : "",
-                                   !StringUtils.isEmpty(userInfos[5]) && !userInfos[5].equals("null") ? userInfos[5].split(":")[1].trim() : "",
-                                   email);
-        }
-
+        User user = userService.getUserById(userId);
+        String email = user != null ? user.getEmail() : "";
         return ResponseEntity.ok(userService.getUserByEmail(email));
     }
 
