@@ -1,7 +1,9 @@
-package kz.kartel.dutyscheduler.security;
+package kz.kartel.dutyscheduler.utils;
 
 import kz.kartel.dutyscheduler.components.user.model.User;
 import kz.kartel.dutyscheduler.components.user.service.UserService;
+import kz.kartel.dutyscheduler.security.ActiveDirectory;
+import kz.kartel.dutyscheduler.security.SecurityConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 

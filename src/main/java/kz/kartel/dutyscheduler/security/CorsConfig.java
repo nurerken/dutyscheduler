@@ -1,5 +1,5 @@
 
-package kz.kartel.dutyscheduler.config;
+package kz.kartel.dutyscheduler.security;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
