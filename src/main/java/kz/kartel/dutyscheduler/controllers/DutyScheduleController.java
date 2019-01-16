@@ -12,13 +12,18 @@ import kz.kartel.dutyscheduler.components.duty.model.Duty;
 import kz.kartel.dutyscheduler.components.duty.service.CalendarAccessService;
 import kz.kartel.dutyscheduler.components.duty.service.CommentService;
 import kz.kartel.dutyscheduler.components.duty.service.DutyService;
+import kz.kartel.dutyscheduler.components.special_date.DutyStatistics;
+import kz.kartel.dutyscheduler.components.special_date.SpecialDateService;
 import kz.kartel.dutyscheduler.components.user.forms.LoginForm;
 import kz.kartel.dutyscheduler.components.user.model.User;
 import kz.kartel.dutyscheduler.components.user.service.UserService;
 import kz.kartel.dutyscheduler.components.vacation.service.VacationService;
+import kz.kartel.dutyscheduler.utils.ExcelGenerator;
 import kz.kartel.dutyscheduler.utils.LdapUtil;
 import kz.kartel.dutyscheduler.security.SecurityConstants;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -28,6 +33,8 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -62,6 +69,9 @@ public class DutyScheduleController {
 
     @Autowired
     private CommentService commentService;
+
+    @Autowired
+    SpecialDateService specialDateService;
 
     //////////////////USER//////////////////////////
     @RequestMapping(value = SecurityConstants.SIGN_UP_URL, method = RequestMethod.POST)
@@ -236,4 +246,26 @@ public class DutyScheduleController {
         return new ResponseEntity<>("OK. Deleted.", HttpStatus.NO_CONTENT);
     }
 
+
+    @RequestMapping(value = SecurityConstants.DUTIES_REPORT, method = RequestMethod.GET)
+    public ResponseEntity<InputStreamResource> excelDutiesReport(@RequestParam("year") Integer year, @RequestParam("month") Integer month, @RequestParam(name = "calId") Long calId) throws IOException {
+
+        Date firstDay = calendarAccessService.getFirstDateOfMonth(year, month);
+        Date lastDay = calendarAccessService.getLastDateOfMonth(year, month);
+
+        List<DutyStatistics> dutyStatisticsList = specialDateService.getDutyStatistics(firstDay, lastDay, calId);
+        String dateString = ExcelGenerator.getMonthName(month) + " " + year;
+        String calendarName = calendarService.getCalendarById(calId).getName();
+
+        ByteArrayInputStream in = ExcelGenerator.customersToExcel(dutyStatisticsList, dateString, calendarName);
+        // return IOUtils.toByteArray(in);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Disposition", "attachment; filename=duty_report.xlsx");
+
+        return ResponseEntity
+                .ok()
+                .headers(headers)
+                .body(new InputStreamResource(in));
+    }
 }

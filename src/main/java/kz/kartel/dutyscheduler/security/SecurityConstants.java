@@ -10,6 +10,7 @@ public class SecurityConstants {
     public static final String AUTHENTICATE_URL = "/authenticate";
     public static final String COMMENTS_URL = "/commentsByDuty";
     public static final String USER_URL = "/user";
+    public static final String DUTIES_REPORT = "/dutiesReportExcel";
 
     public static final String ldapContextKey = "ldapContext";
 
