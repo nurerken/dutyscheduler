@@ -106,7 +106,7 @@ public class DutyService {
             }
 
             try {
-                DateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+                DateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy");
                 String strDate1 = dateFormat.format(date1);
                 week.getDates().add(strDate1);
 
