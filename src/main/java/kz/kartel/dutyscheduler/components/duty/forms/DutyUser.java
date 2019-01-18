@@ -5,7 +5,7 @@ import java.util.List;
 public class DutyUser {
     private Integer id;
     private String name;
-    //private String email;
+    private String responsibleSystems;
     private List<DutyInfo> duties;
 
     public Integer getId() {
@@ -22,17 +22,17 @@ public class DutyUser {
         this.name = name;
     }
 
-    /*public String getEmail() {
-        return email;
-    }
-    public void setEmail(String email) {
-        this.email = email;
-    }*/
-
     public List<DutyInfo> getDuties() {
         return duties;
     }
     public void setDuties(List<DutyInfo> duties) {
         this.duties = duties;
+    }
+
+    public String getResponsibleSystems() {
+        return responsibleSystems;
+    }
+    public void setResponsibleSystems(String responsibleSystems) {
+        this.responsibleSystems = responsibleSystems;
     }
 }

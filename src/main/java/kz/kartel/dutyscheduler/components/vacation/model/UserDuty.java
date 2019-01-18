@@ -8,6 +8,7 @@ public class UserDuty {
     private Long userId;
     private String firstName;
     private String lastName;
+    private String responsibleSystems;
     private String duties;
 
     @Id
@@ -41,5 +42,12 @@ public class UserDuty {
     }
     public void setDuties(String duties) {
         this.duties = duties;
+    }
+
+    public String getResponsibleSystems() {
+        return responsibleSystems;
+    }
+    public void setResponsibleSystems(String responsibleSystems) {
+        this.responsibleSystems = responsibleSystems;
     }
 }

@@ -58,7 +58,8 @@ public class DutyService {
             userDuty.setUserId(Long.parseLong(object[0] + ""));
             userDuty.setFirstName((String)object[1]);
             userDuty.setLastName((String)object[2]);
-            userDuty.setDuties((String)object[3]);
+            userDuty.setResponsibleSystems((String)object[3]);
+            userDuty.setDuties((String)object[4]);
             duties.add(userDuty);
         }
         return duties;
@@ -98,7 +99,7 @@ public class DutyService {
                     DutyUser dutyUser = new DutyUser();
                     dutyUser.setId(userDuty.getUserId().intValue());
                     dutyUser.setName(userDuty.getLastName() + " " + userDuty.getFirstName());
-                    //dutyUser.setEmail();
+                    dutyUser.setResponsibleSystems(userDuty.getResponsibleSystems() != null ? userDuty.getResponsibleSystems() : "");
                     dutyUser.setDuties(new ArrayList<>());
                     dutyUsers.add(dutyUser);
                 }
