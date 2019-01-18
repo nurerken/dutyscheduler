@@ -27,6 +27,7 @@ public class CalendarAccessService {
     private CalendarAccessRepository calendarAccessRepository;
 
     public CalendarAccess getAccessBy(String userEmail, Long calendarId){
+        userEmail = userEmail.toLowerCase();
         return calendarAccessRepository.getAccessBy(userEmail, calendarId);
     }
 

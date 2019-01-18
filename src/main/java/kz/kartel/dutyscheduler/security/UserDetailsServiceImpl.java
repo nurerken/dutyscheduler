@@ -19,7 +19,8 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        kz.kartel.dutyscheduler.components.user.model.User applicationUser = applicationUserRepository.findByEmail(username);
+        username = username.trim().toLowerCase();
+        kz.kartel.dutyscheduler.components.user.model.User applicationUser = applicationUserRepository.getUserByEmail(username);
         if (applicationUser == null) {
             throw new UsernameNotFoundException(username);
         }

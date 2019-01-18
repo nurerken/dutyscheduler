@@ -18,6 +18,6 @@ import java.util.List;
 @Repository
 public interface CalendarAccessRepository extends JpaRepository<CalendarAccess, Long> {
 
-    @Query("select ca from CalendarAccess ca join ca.user u where u.email = :userEmail and ca.calendar.id = :calId")
+    @Query("select ca from CalendarAccess ca join ca.user u where LOWER(u.email) = :userEmail and ca.calendar.id = :calId")
     public CalendarAccess getAccessBy(@Param("userEmail") String email, @Param("calId") Long calId);
 }

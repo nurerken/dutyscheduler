@@ -16,7 +16,8 @@ public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificat
     @Query("select u from User u where u.id = :userId")
     public User getUserById(@Param("userId") Long userId);
 
-    public User findByEmail(String email);
+    @Query(value="select u from User u where LOWER(u.email) = :email")
+    public User getUserByEmail(@Param("email") String email);
 
     @Query(value = "select user_id from users order by user_id desc limit 1", nativeQuery = true)
     public Object getLastIUserId();
